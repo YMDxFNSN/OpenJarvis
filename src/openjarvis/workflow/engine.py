@@ -274,11 +274,21 @@ class WorkflowEngine:
                 success=True,
                 output="true",
             )
-        # Simple expression evaluation — check if key exists and is truthy
-        # Supports: "node_id.success", "node_id.output contains 'text'"
+        # Simple expression evaluation over prior-step ``outputs``, e.g.
+        # ``outputs['node_id'] == 'yes'`` or ``'error' in outputs['node_id']``.
+        #
+        # A bare ``eval`` — even with ``{"__builtins__": {}}`` — is trivially
+        # escapable via attribute walks (``().__class__.__mro__[-1]
+        # .__subclasses__()`` → arbitrary code execution), and workflow
+        # definitions come from user-authored TOML that may not be trusted.
+        # Reuse the AST-allowlist evaluator already used for tool templates:
+        # it never calls ``eval``/``exec`` and only reaches whitelisted nodes,
+        # so the escape vectors are unreachable by construction.
+        from openjarvis.tools.templates.loader import safe_eval_expr
+
         try:
-            result = str(eval(expr, {"__builtins__": {}}, {"outputs": outputs}))  # noqa: S307
-        except Exception:
+            result = str(safe_eval_expr(expr, {"outputs": outputs}))
+        except (ValueError, SyntaxError, KeyError, TypeError):
             result = "false"
         return WorkflowStepResult(
             node_id=node.id,

@@ -1,0 +1,46 @@
+{
+  "loop": "openjarvis-security",
+  "version": "0.1.0",
+  "updated": "2026-07-04",
+  "done_when": "all [auto] assertions pass (score == 1.0) and every [manual] assertion has a holding dated log entry",
+  "items": [
+    {
+      "id": "SEC-001",
+      "title": "Workflow condition eval cannot escape to RCE",
+      "kind": "auto",
+      "status": "done",
+      "evidence": "workflow/engine.py uses safe_eval_expr; escape payload -> 'false'; old eval reached 716 subclasses",
+      "closed": "2026-07-04"
+    },
+    {
+      "id": "SEC-002",
+      "title": "Workflow test suite green with hardened evaluator",
+      "kind": "auto",
+      "status": "done",
+      "evidence": "tests/workflow + tests/cli/test_workflow_cmd -> 19 passed",
+      "closed": "2026-07-04"
+    },
+    {
+      "id": "SEC-003",
+      "title": "All eval/exec sites justified (sandbox | fixture | safe_eval)",
+      "kind": "manual",
+      "status": "done",
+      "evidence": "audit 2026-07-04: evals/scorers sandboxes, security_scanner.py fixtures, templates/loader + workflow use safe_eval",
+      "closed": "2026-07-04"
+    },
+    {
+      "id": "SEC-004",
+      "title": "No hardcoded secrets in src/",
+      "kind": "manual",
+      "status": "pending",
+      "evidence": "run /security-review + secret scan across src/"
+    },
+    {
+      "id": "SEC-005",
+      "title": "External-boundary inputs validated via security stack",
+      "kind": "manual",
+      "status": "pending",
+      "evidence": "confirm no tool bypasses ToolExecutor / boundary guard / taint"
+    }
+  ]
+}
